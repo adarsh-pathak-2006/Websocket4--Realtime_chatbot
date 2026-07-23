@@ -115,6 +115,7 @@
     const wsEndpoint = `${wsProtocol}://${window.location.host}/ws/cb/`;
     
     let chatSocket;
+    let currentAiMessageDiv = null;
 
     function connect() {
         chatSocket = new WebSocket(wsEndpoint);
@@ -125,9 +126,24 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            
             if (data.type === 'ai_response') {
                 typingIndicator.style.display = 'none';
-                appendMessage('ai', data.message);
+                
+                // If there's no active bubble, create one
+                if (!currentAiMessageDiv) {
+                    currentAiMessageDiv = document.createElement('div');
+                    currentAiMessageDiv.classList.add('message', 'ai');
+                    chatMessages.insertBefore(currentAiMessageDiv, typingIndicator);
+                }
+                
+                // Append the incoming chunk to the same bubble
+                currentAiMessageDiv.textContent += data.message;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+            } else if (data.type === 'done') {
+                // Response is complete, reset the active bubble
+                currentAiMessageDiv = null;
             }
         };
 
