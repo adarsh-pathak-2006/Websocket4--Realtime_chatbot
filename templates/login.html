@@ -1,16 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}Login{% endblock title %}
+{% block title %}Login - Chat AI{% endblock title %}
 
 {% block body %}
-
-<form method="POST">
-{{ form }}
-<button type='submit'>Login</button>
-
-</form>
-<a href="{% url "register" %}">New user register here</a>
-{% if invalid %}{{ invalid }}{% endif %}
-{% if user_err %}{{ user_err }}{% endif %}
-
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-card" style="width: 100%; max-width: 400px; padding: 40px;">
+        <h2 style="text-align: center; margin-bottom: 24px; font-weight: 600; font-size: 1.5rem;">Welcome Back</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+                <div style="margin-bottom: 4px;">
+                    <label style="font-size: 0.875rem; color: var(--text-muted);">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <button type='submit' style="margin-top: 8px;">Login</button>
+        </form>
+        
+        <div style="margin-top: 24px; text-align: center; font-size: 0.875rem; color: var(--text-muted);">
+            Don't have an account? <a href="{% url 'register' %}">Register here</a>
+        </div>
+        
+        {% if invalid %}
+            <div style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.2); border-left: 4px solid #ef4444; border-radius: 4px; font-size: 0.875rem;">
+                {{ invalid }}
+            </div>
+        {% endif %}
+        {% if user_err %}
+            <div style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.2); border-left: 4px solid #ef4444; border-radius: 4px; font-size: 0.875rem;">
+                {{ user_err }}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock body %}

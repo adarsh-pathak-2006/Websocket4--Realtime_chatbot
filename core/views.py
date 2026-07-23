@@ -18,8 +18,8 @@ class RegisterView(View):
             if User.objects.filter(username=username).exists():
                 return render(request, 'register.html', {'form':form_data, 'user_err':'username already exists..try another'})
             else:
-                user=User.objects.create(username=username, password=pass1)
-                login(user)
+                user=User.objects.create_user(username=username, password=pass1)
+                login(request, user)
                 return redirect('login')
         else:
             return render(request, 'login.html', { 'invalid':'invalid inputs' }) 
@@ -38,7 +38,7 @@ class LoginView(View):
             if user is None:
                 return render(request, 'login.html', {'user_err':'user does not exist..try registration first'})
             else:
-                login(user)
+                login(request, user)
                 return redirect('home')
         else:
             return render(request, 'login.html', { 'invalid':'invalid inputs' })
