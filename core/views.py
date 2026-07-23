@@ -43,3 +43,7 @@ class LoginView(View):
         else:
             return render(request, 'login.html', { 'invalid':'invalid inputs' })
 
+class HomeView(View):
+    def get(self, request):
+        return render(request, 'home.html')
+
