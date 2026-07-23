@@ -1,7 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from services.result import final_response
-from asgiref.sync import sync_to_async
+from services.result import final_response_async
 from core.models import ChatLogs
 
 class ChatBotConsumer(AsyncWebsocketConsumer):
@@ -17,15 +16,19 @@ class ChatBotConsumer(AsyncWebsocketConsumer):
         data=json.loads(text_data)
         message=data.get("message")
 
-        ai_response=await sync_to_async(final_response)(query=message)
+        complete_response=""
 
-        ai=json.dumps({
-            'type':'ai_response',
-            'message': ai_response,
-        })
-        await ChatLogs.objects.acreate(user=self.user, query=message, answer=ai_response)
+        async for chunk in final_response_async(query=message):
+            complete_response=complete_response+chunk
+            await self.send(text_data=json.dumps({
+                        'type':'ai_response',
+                        'message': chunk,
+                    }))
 
-        await self.send(text_data=ai)
+        
+        await ChatLogs.objects.acreate(user=self.user, query=message, answer=complete_response)
+
+        await self.send(json.dumps({ 'type':'done' }))
 
     async def disconnect(self, code):
         print("client disconnected", code)

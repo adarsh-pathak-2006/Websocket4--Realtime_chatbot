@@ -1,7 +1,7 @@
 from services.build_prompt import build_prompt
-from services.ping import generate_response
+from services.ping import generate_response_async
 
-def final_response(query):
+async def final_response_async(query):
     prompt=build_prompt(query=query)
-    answer=generate_response(prompt)
-    return answer
+    async for chunk in generate_response_async(prompt):
+        yield chunk
